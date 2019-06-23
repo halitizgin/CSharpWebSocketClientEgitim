@@ -23,17 +23,16 @@ namespace CSharpWebSocketClientEgitim
         private void Form1_Load(object sender, EventArgs e)
         {
             socket = IO.Socket("http://localhost:3000");
-            socket.On("hi", () => 
-            {
-                socket.Emit("thanks");
-                MessageBox.Show("Hoşgeldiniz.");
-            });
 
+            socket.On("message", data =>
+            {
+                MessageBox.Show(data.ToString(), "Mesaj");
+            });
         }
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            socket.Emit("click");
+            socket.Emit("message", textBox1.Text.Trim());
         }
     }
 }
