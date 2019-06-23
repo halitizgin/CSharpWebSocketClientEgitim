@@ -1,4 +1,5 @@
-﻿using Quobject.SocketIoClientDotNet.Client;
+﻿using Newtonsoft.Json;
+using Quobject.SocketIoClientDotNet.Client;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,15 +25,21 @@ namespace CSharpWebSocketClientEgitim
         {
             socket = IO.Socket("http://localhost:3000");
 
-            socket.On("message", data =>
+            socket.On("login", data =>
             {
-                MessageBox.Show(data.ToString(), "Mesaj");
+                User user = JsonConvert.DeserializeObject<User>(data.ToString());
+                MessageBox.Show("Kullanıcı: " + user.name + "\nYaş: " + user.old + "\nbağlandı!");
             });
         }
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            socket.Emit("message", textBox1.Text.Trim());
+            
+        }
+
+        private void Button1_Click_1(object sender, EventArgs e)
+        {
+            socket.Emit("login", JsonConvert.SerializeObject(new { name = textBox1.Text.Trim(), old = int.Parse(textBox2.Text.Trim()) }));
         }
     }
 }
