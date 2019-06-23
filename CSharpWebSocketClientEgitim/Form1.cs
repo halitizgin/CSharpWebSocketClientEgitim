@@ -12,6 +12,8 @@ using System.Windows.Forms;
 
 namespace CSharpWebSocketClientEgitim
 {
+    delegate void ChangeTextDel(string text);
+    delegate void AddItemDel(string text);
     public partial class Form1 : Form
     {
         public Form1()
@@ -25,21 +27,42 @@ namespace CSharpWebSocketClientEgitim
         {
             socket = IO.Socket("http://localhost:3000");
 
-            socket.On("login", data =>
+            socket.On("message", data =>
             {
-                User user = JsonConvert.DeserializeObject<User>(data.ToString());
-                MessageBox.Show("Kullanıcı: " + user.name + "\nYaş: " + user.old + "\nbağlandı!");
+                ChangeText(data.ToString());
+                AddItem(data.ToString());
             });
         }
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            
+            socket.Emit("message", textBox1.Text);
         }
 
-        private void Button1_Click_1(object sender, EventArgs e)
+        private void ChangeText(string text)
         {
-            socket.Emit("login", JsonConvert.SerializeObject(new { name = textBox1.Text.Trim(), old = int.Parse(textBox2.Text.Trim()) }));
+            if (label1.InvokeRequired)
+            {
+                ChangeTextDel del = new ChangeTextDel(ChangeText);
+                Invoke(del, new object[] { text });
+            }
+            else
+            {
+                label1.Text = text;
+            }
+        }
+
+        private void AddItem(string text)
+        {
+            if (listBox1.InvokeRequired)
+            {
+                AddItemDel del = new AddItemDel(AddItem);
+                Invoke(del, new object[] { text });
+            }
+            else
+            {
+                listBox1.Items.Add(text);
+            }
         }
     }
 }
